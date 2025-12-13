@@ -18,6 +18,8 @@ model User {
   predictions Prediction[]
   triviaRuns TriviaRun[]
   banterPacks BanterPack[] @relation("UserBanterPacks")
+  inviteCode InviteCode? @relation(fields: [inviteCodeId], references: [id])
+  inviteCodeId Int?
   RSVPs     RSVP[]
 }
 
@@ -28,6 +30,9 @@ model InviteCode {
   createdAt    DateTime @default(now())
   usedByUserId Int?     @unique
   usedBy       User?    @relation(fields: [usedByUserId], references: [id])
+  usedByUserId Int?
+  usedBy       User?    @relation(fields: [usedByUserId], references: [id])
+  users        User[]
 }
 
 model Post {
