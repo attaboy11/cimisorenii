@@ -216,6 +216,9 @@ This is a banter site for friends. Keep it fun: no slurs, no hate, no harassment
 
 ⸻
 
+## License
+
+MIT (or your preferred license).
 License
 
 MIT (or your preferred license).

@@ -28,6 +28,8 @@ model InviteCode {
   code         String   @unique
   isUsed       Boolean  @default(false)
   createdAt    DateTime @default(now())
+  usedByUserId Int?     @unique
+  usedBy       User?    @relation(fields: [usedByUserId], references: [id])
   usedByUserId Int?
   usedBy       User?    @relation(fields: [usedByUserId], references: [id])
   users        User[]
