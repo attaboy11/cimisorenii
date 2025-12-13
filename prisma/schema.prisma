@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  club      String
+  role      String   @default("member")
+  createdAt DateTime @default(now())
+  posts     Post[]
+  reactions Reaction[]
+  predictions Prediction[]
+  triviaRuns TriviaRun[]
+  banterPacks BanterPack[] @relation("UserBanterPacks")
+  inviteCode InviteCode? @relation(fields: [inviteCodeId], references: [id])
+  inviteCodeId Int?
+  RSVPs     RSVP[]
+}
+
+model InviteCode {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  isUsed       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  usedByUserId Int?
+  usedBy       User?    @relation(fields: [usedByUserId], references: [id])
+  users        User[]
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   Int
+  clubTarget String
+  clubRival  String
+  intensity  String
+  style      String
+  content    String
+  createdAt  DateTime @default(now())
+  reactions  Reaction[]
+}
+
+model Reaction {
+  id        Int      @id @default(autoincrement())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  type      String
+  createdAt DateTime @default(now())
+}
+
+model BanterPack {
+  id              Int      @id @default(autoincrement())
+  name            String
+  createdByUser   User     @relation("UserBanterPacks", fields: [createdByUserId], references: [id])
+  createdByUserId Int
+  entriesJson     String
+  createdAt       DateTime @default(now())
+}
+
+model Fact {
+  id           Int      @id @default(autoincrement())
+  club         String
+  category     String
+  claim        String
+  sourceName   String
+  sourceUrl    String
+  lastCheckedAt DateTime
+  createdAt    DateTime @default(now())
+}
+
+model Fixture {
+  id         Int      @id @default(autoincrement())
+  provider   String
+  matchId    String
+  homeClub   String
+  awayClub   String
+  kickoffTs  DateTime
+  competition String
+  status     String
+  homeScore  Int?
+  awayScore  Int?
+  updatedAt  DateTime @default(now())
+  predictions Prediction[]
+  events      Event[]
+}
+
+model Prediction {
+  id            Int      @id @default(autoincrement())
+  fixture       Fixture  @relation(fields: [fixtureId], references: [id])
+  fixtureId     Int
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
+  homeScore     Int
+  awayScore     Int
+  boldClaim     String?
+  pointsAwarded Int?     @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model TriviaQuestion {
+  id           Int      @id @default(autoincrement())
+  club         String
+  difficulty   String
+  question     String
+  optionsJson  String
+  answerIndex  Int
+  explanation  String
+  sourceName   String
+  sourceUrl    String
+}
+
+model TriviaRun {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  score       Int
+  total       Int
+  durationSec Int
+  createdAt   DateTime @default(now())
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  title     String
+  location  String
+  kickoffTs DateTime
+  fixture   Fixture? @relation(fields: [fixtureId], references: [id])
+  fixtureId Int?
+  createdAt DateTime @default(now())
+  RSVPs     RSVP[]
+}
+
+model RSVP {
+  id        Int      @id @default(autoincrement())
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  status    String
+  createdAt DateTime @default(now())
+}
+
+model BlockedTerm {
+  id        Int      @id @default(autoincrement())
+  term      String   @unique
+  createdAt DateTime @default(now())
+}
