@@ -1,0 +1,20 @@
+{
+  "target_listings": 1000,
+  "horizon_hours": 72,
+  "dry_run": true,
+  "demo_mode": false,
+  "batch_size": 25,
+  "concurrency": 4,
+  "retry_attempts": 3,
+  "retry_backoff_seconds": 1.5,
+  "kill_switch": false,
+  "human_review_rate": 10,
+  "product_templates": ["tee", "hoodie", "mug"],
+  "allowed_niches": [],
+  "blocked_niches": [],
+  "pricing_margin": 0.55,
+  "throttle_rules": [
+    {"service": "etsy", "rate_per_minute": 20, "burst": 3},
+    {"service": "printify", "rate_per_minute": 30, "burst": 3}
+  ]
+}
