@@ -223,4 +223,46 @@ License
 
 MIT (or your preferred license).
 
+---
+
+## Etsy Shop Autopilot (POD agent)
+
+This repo now includes a policy-safe Etsy automation sandbox (`autopilot/`) built in Python. It researches niches, generates original text-first design prompts, validates placeholder PNGs, syncs POD products, and composes Etsy-ready payloads with traceability baked in. Everything runs in **dry-run** by default, with a 10-listing **demo mode** that exercises the end-to-end flow without hitting external APIs.
+
+### Repo structure (autopilot scope)
+- `autopilot/config/` — single JSON config (`default.yml`) with kill switch, human-review sampling, throttles, and batch settings.
+- `autopilot/db/` — SQLite schema + helpers for concepts/designs/pod products/listings/runs/events.
+- `autopilot/research/` — niche discovery + keyword clustering with IP blocklists.
+- `autopilot/design/` — prompt templates + variant generator (creates placeholder transparent PNGs).
+- `autopilot/image_processing/` — validation hooks (format/resolution flags).
+- `autopilot/pod/` — Printify-style mock client to create SKUs and pricing with margin rules.
+- `autopilot/etsy/` — payload builder, sanitizer, and mock publisher with tag/title limits enforced.
+- `autopilot/orchestrator/` — controller that wires the pipeline and logs artifacts to SQLite.
+- `autopilot/observability/` — structured JSON logging.
+- `autopilot/RUNBOOK.md` — recovery, kill switch, and review-gate steps.
+
+### Database schema (autopilot)
+See `autopilot/db/schema.sql` for full SQL (concepts, designs, pod_products, etsy_listings, runs, events). Idempotency is enforced via `UNIQUE(pod_product_id)` on Etsy listings.
+
+### Orchestration pseudocode
+```
+load RunConfig
+connect SQLite + init schema
+seed niches -> keyword backlog
+for concept in backlog (demo: first 10):
+    generate 3 design variants
+    validate image placeholders
+    create POD product + SKU
+    build Etsy payload (title/tags/description)
+    publish (dry-run returns pending id)
+    log artifacts + events
+record totals in runs/events
+```
+
+### 10-listing demo
+```bash
+python -m autopilot.orchestrator.run
+```
+Outputs: SQLite DB at `autopilot/demo.db`, placeholder assets in `autopilot/output/`, and structured logs. Adjust guardrails and batch sizing in `autopilot/config/default.yml`; provide credentials via `.env` (see `.env.example`).
+
 
